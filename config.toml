@@ -1,0 +1,17 @@
+Port = "5789"
+Directory = "./src"
+FileScanInterval = 1000
+
+[FilePatterns]
+  Include = ["**/*.js", "**/*.ts"]
+  Exclude = ["**/*.d.ts"]
+
+[Logging]
+  NoColor = false
+  LogConfig = false
+
+[Handlers]
+  [Handlers.NSDefinitions]
+    Enable = true
+    Destination = "./"
+
