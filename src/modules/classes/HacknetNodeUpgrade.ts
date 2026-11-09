@@ -1,13 +1,11 @@
 export abstract class HacknetNodeUpgrade {
   protected _price: number = 0;
 
-  constructor(protected ns: NS) {
-  }
+  constructor(protected ns: NS) { }
 
   public get price(): number {
     return this._price;
   }
-
 
   public abstract upgrade(): boolean;
   public abstract toString(): string;
@@ -33,7 +31,10 @@ export class HacknetNewNodeUpgrade extends HacknetNodeUpgrade {
 }
 
 export class HacknetNodeLevelUpgrade extends HacknetNodeUpgrade {
-  constructor(ns: NS, private _index: number) {
+  constructor(
+    ns: NS,
+    private _index: number,
+  ) {
     super(ns);
     this._price = this.ns.hacknet.getLevelUpgradeCost(_index);
   }
@@ -48,7 +49,10 @@ export class HacknetNodeLevelUpgrade extends HacknetNodeUpgrade {
 }
 
 export class HacknetNodeRamUpgrade extends HacknetNodeUpgrade {
-  constructor(ns: NS, private _index: number) {
+  constructor(
+    ns: NS,
+    private _index: number,
+  ) {
     super(ns);
     this._price = this.ns.hacknet.getRamUpgradeCost(_index);
   }
@@ -63,7 +67,10 @@ export class HacknetNodeRamUpgrade extends HacknetNodeUpgrade {
 }
 
 export class HacknetNodeCoreUpgrade extends HacknetNodeUpgrade {
-  constructor(ns: NS, private _index: number) {
+  constructor(
+    ns: NS,
+    private _index: number,
+  ) {
     super(ns);
     this._price = this.ns.hacknet.getCoreUpgradeCost(_index);
   }

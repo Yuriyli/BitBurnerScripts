@@ -1,11 +1,14 @@
 import {
-  HacknetNodeUpgrade, HacknetNewNodeUpgrade, HacknetNodeLevelUpgrade,
-  HacknetNodeCoreUpgrade, HacknetNodeRamUpgrade
+  HacknetNodeUpgrade,
+  HacknetNewNodeUpgrade,
+  HacknetNodeLevelUpgrade,
+  HacknetNodeCoreUpgrade,
+  HacknetNodeRamUpgrade,
 } from "./HacknetNodeUpgrade";
 
 export class HacknetNodeInfo {
-  public static getCheapestUpgrade(ns: NS): HacknetNodeUpgrade {
-    const result: Array<HacknetNodeUpgrade> = new Array<HacknetNodeUpgrade>;
+  public static getCheapestUpgrade(ns: NS): HacknetNodeUpgrade | undefined {
+    const result: Array<HacknetNodeUpgrade> = new Array<HacknetNodeUpgrade>();
 
     result.push(new HacknetNewNodeUpgrade(ns));
 
