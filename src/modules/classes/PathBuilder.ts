@@ -16,4 +16,8 @@ export class PathBuilder {
   public static get modules(): string {
     return basePath + "modules/";
   }
+
+  public static get classes(): string {
+    return basePath + "modules/classes/";
+  }
 }
