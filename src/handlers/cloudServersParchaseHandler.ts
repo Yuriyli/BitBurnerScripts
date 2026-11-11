@@ -23,15 +23,25 @@ export async function main(ns: NS) {
         continue;
       }
 
-      const result: string = ns.cloud.purchaseServer(baseName + currentServerIndex, 2 ** power);
-      ns.tprint('New server "' + result + '" parchased.'
-        + " Cost: " + ns.format.number(cost) + "."
-        + " Ram: " + ns.format.ram(2 ** power) + ".");
+      const result: string = ns.cloud.purchaseServer(
+        baseName + currentServerIndex,
+        2 ** power,
+      );
+      ns.tprint(
+        'New server "' +
+          result +
+          '" parchased.' +
+          " Cost: " +
+          ns.format.number(cost) +
+          "." +
+          " Ram: " +
+          ns.format.ram(2 ** power) +
+          ".",
+      );
       installRemoteHandlers(ns, result);
 
       ++currentServerIndex;
     } while (currentServerIndex < serverLimit);
-
   }
 
   function updatePowerAndCurrentIndex(): void {
@@ -60,7 +70,6 @@ export async function main(ns: NS) {
     ++power;
   }
 
-
   async function upgradeServers(): Promise<void> {
     const servers: Array<string> = ns.cloud.getServerNames();
 
@@ -70,22 +79,36 @@ export async function main(ns: NS) {
         currentServerIndex = 0;
       }
 
-      const cost: number = ns.cloud.getServerUpgradeCost(servers[currentServerIndex], 2 ** power);
+      const cost: number = ns.cloud.getServerUpgradeCost(
+        servers[currentServerIndex],
+        2 ** power,
+      );
       if (cost > ns.getServerMoneyAvailable("home")) {
         await ns.sleep(60000);
         continue;
       }
 
-      const result: boolean = ns.cloud.upgradeServer(servers[currentServerIndex], 2 ** power);
+      const result: boolean = ns.cloud.upgradeServer(
+        servers[currentServerIndex],
+        2 ** power,
+      );
       if (result) {
-        ns.tprint('Server "' + servers[currentServerIndex] + '" upgraded from '
-          + ns.format.ram(2 ** (power - 1))
-          + " to " + ns.format.ram(2 ** power) + "."
-          + " Cost: " + ns.format.number(cost) + ".");
+        ns.tprint(
+          'Server "' +
+            servers[currentServerIndex] +
+            '" upgraded from ' +
+            ns.format.ram(2 ** (power - 1)) +
+            " to " +
+            ns.format.ram(2 ** power) +
+            "." +
+            " Cost: " +
+            ns.format.number(cost) +
+            ".",
+        );
         ++currentServerIndex;
       } else {
         ns.tprint('Failed to upgrade "' + servers[currentServerIndex] + '"');
-        await ns.sleep(60000)
+        await ns.sleep(60000);
       }
     } while (power !== serverMaxPower || currentServerIndex < serverLimit);
   }
