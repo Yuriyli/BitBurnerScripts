@@ -12,4 +12,8 @@ export class PathBuilder {
   public static get remoteHandlers(): string {
     return basePath + "remoteHandlers/";
   }
+
+  public static get modules(): string {
+    return basePath + "modules/";
+  }
 }
