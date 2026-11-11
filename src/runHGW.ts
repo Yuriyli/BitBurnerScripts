@@ -2,7 +2,6 @@ import { CloudServerInfo } from "./modules/classes/CloudServerInfo";
 import { ServerInfo } from "./modules/classes/ServerInfo";
 
 export async function main(ns: NS) {
-
   const target = ns.args[0] as string;
   const cycles = ns.args[1] as number;
   const hacks = ns.args[2] as number;
@@ -10,40 +9,57 @@ export async function main(ns: NS) {
   const grows = ns.args[4] as number;
   const growWeakens = ns.args[5] as number;
 
-  if (typeof target !== "string" || typeof cycles !== "number" ||
-    typeof hacks !== "number" || typeof hackWeakens !== "number" || typeof grows !== "number" || typeof growWeakens !== "number") {
-    ns.tprint("Wrong args format! \n")
-    ns.tprint("taget:string cycles:number hacks:number hackWeakens:number grows:number growWeakens:number \n")
-    ns.tprint("n00dles 1 200 5 200 50")
+  if (
+    typeof target !== "string" ||
+    typeof cycles !== "number" ||
+    typeof hacks !== "number" ||
+    typeof hackWeakens !== "number" ||
+    typeof grows !== "number" ||
+    typeof growWeakens !== "number"
+  ) {
+    ns.tprint("Wrong args format! \n");
+    ns.tprint(
+      "taget:string cycles:number hacks:number hackWeakens:number grows:number growWeakens:number \n",
+    );
+    ns.tprint("n00dles 1 200 5 200 50");
     return;
   }
 
   let serverInfo: ServerInfo = ServerInfo.getServerInfo(ns, target);
-  let cloudServersInfoList: Array<CloudServerInfo> = CloudServerInfo.getCloudServersInfoRaw(ns);
+  let cloudServersInfoList: Array<CloudServerInfo> =
+    CloudServerInfo.getCloudServersInfoRaw(ns);
 
   const scriptDelay = 50;
 
   for (let i = 0; i < cycles; i++) {
-    await hwgCycle(serverInfo.weakenTime, hacks, hackWeakens, grows, growWeakens);
+    await hwgCycle(
+      serverInfo.weakenTime,
+      hacks,
+      hackWeakens,
+      grows,
+      growWeakens,
+    );
 
-    ns.tprint((i + 1) + " cycle finished")
+    ns.tprint(i + 1 + " cycle finished");
   }
 
-  ns.tprint("HGW finished")
-  async function hwgCycle(weakenTime: number, hacks: number, hackWeakens: number, grows: number, growWeakens: number) {
-
+  ns.tprint("HGW finished");
+  async function hwgCycle(
+    weakenTime: number,
+    hacks: number,
+    hackWeakens: number,
+    grows: number,
+    growWeakens: number,
+  ) {
     runHacks(weakenTime, hacks);
 
-    ns.asleep(scriptDelay)
-      .then(() => runWeakens(weakenTime, hackWeakens));
+    ns.asleep(scriptDelay).then(() => runWeakens(weakenTime, hackWeakens));
 
-    ns.asleep(scriptDelay * 2)
-      .then(() => runGrows(weakenTime, grows));
+    ns.asleep(scriptDelay * 2).then(() => runGrows(weakenTime, grows));
 
-    ns.asleep(scriptDelay * 3)
-      .then(() => runWeakens(weakenTime, growWeakens));
+    ns.asleep(scriptDelay * 3).then(() => runWeakens(weakenTime, growWeakens));
 
-    await ns.asleep(weakenTime + (scriptDelay * 4));
+    await ns.asleep(weakenTime + scriptDelay * 4);
   }
 
   async function runWeakens(wT: number, threads: number) {
@@ -100,5 +116,4 @@ export async function main(ns: NS) {
 
     CloudServerInfo.runGrows(cloudServersInfoList, threads, target);
   }
-
 }
