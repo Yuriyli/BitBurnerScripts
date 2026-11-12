@@ -5,19 +5,20 @@ export async function main(ns: NS) {
   const target = ns.args[0] as string;
 
   if (!target) {
-    ns.tprint("Argument [0] \"target\" required");
+    ns.tprint('Argument [0] "target" required');
     return;
   }
 
   const scriptDelay = 50;
 
   let serverInfo: ServerInfo = ServerInfo.getServerInfo(ns, target);
-  let cloudServersInfoList: Array<CloudServerInfo> = CloudServerInfo.getCloudServersInfoRaw(ns);
+  let cloudServersInfoList: Array<CloudServerInfo> =
+    CloudServerInfo.getCloudServersInfoRaw(ns);
 
   // Kill all runing scripts on cloud servers. Requested after reboot.
   CloudServerInfo.killAllWGHByTargetName(cloudServersInfoList, target);
 
-  // Needed because on low money PrepareServer() can calculate wrong grow count. 
+  // Needed because on low money PrepareServer() can calculate wrong grow count.
   do {
     await PrepareServer();
     updateServerInfo();
@@ -27,7 +28,6 @@ export async function main(ns: NS) {
 
   async function PrepareServer() {
     let toDoWeakens: number = 0;
-    let toDoGrows: number = 0;
 
     // 1. Weaken to 0
     do {
@@ -38,7 +38,11 @@ export async function main(ns: NS) {
       }
       const weakenT: number = serverInfo.weakenTime;
 
-      const resultWeakens: number = CloudServerInfo.runWeaks(cloudServersInfoList, toDoWeakens, target);
+      const resultWeakens: number = CloudServerInfo.runWeaks(
+        cloudServersInfoList,
+        toDoWeakens,
+        target,
+      );
       toDoWeakens -= resultWeakens;
 
       await ns.sleep(weakenT + scriptDelay);
@@ -46,7 +50,6 @@ export async function main(ns: NS) {
 
     // 2. Rise to max money
     await runGrowWeakGroup();
-
   }
 
   async function hackCycle() {
@@ -58,7 +61,6 @@ export async function main(ns: NS) {
   }
 
   async function runHackWeakGroup() {
-
     let toDoWeakens: number = 0;
     let toDoHacks: number = 0;
 
@@ -93,7 +95,6 @@ export async function main(ns: NS) {
   }
 
   async function runGrowWeakGroup() {
-
     let toDoWeakens: number = 0;
     let toDoGrows: number = 0;
 
@@ -124,7 +125,11 @@ export async function main(ns: NS) {
         growT = newGrowT;
       } while (sleepFlag);
 
-      const resultGrows: number = CloudServerInfo.runGrows(cloudServersInfoList, toDoGrows, target);
+      const resultGrows: number = CloudServerInfo.runGrows(
+        cloudServersInfoList,
+        toDoGrows,
+        target,
+      );
       toDoGrows -= resultGrows;
       await ns.sleep(growT + scriptDelay);
     } while (toDoGrows > 0);
@@ -132,9 +137,5 @@ export async function main(ns: NS) {
 
   function updateServerInfo() {
     serverInfo = ServerInfo.getServerInfo(ns, target);
-  }
-
-  function updateCludServersInfo() {
-    cloudServersInfoList = CloudServerInfo.getCloudServersInfoRaw(ns);
   }
 }

@@ -1,4 +1,8 @@
-import { getAllUnrootedServerNames, getAllHackableServers, rootServer } from "../modules/server"
+import {
+  getAllUnrootedServerNames,
+  getAllHackableServers,
+  rootServer,
+} from "../modules/server";
 
 export async function main(ns: NS) {
   let isDone: boolean = false;
@@ -12,9 +16,9 @@ export async function main(ns: NS) {
 
     const hackable: Array<string> = getAllHackableServers(ns);
 
-    hackable.forEach(s => {
+    hackable.forEach((s) => {
       rootServer(ns, s);
-    })
+    });
 
     await ns.asleep(60000);
   }

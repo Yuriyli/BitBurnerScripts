@@ -1,4 +1,5 @@
 import { CloudServerInfo } from "../modules/classes/CloudServerInfo";
+import { PathBuilder } from "../modules/classes/PathBuilder";
 import { ServerInfo } from "../modules/classes/ServerInfo";
 import { ServerInfoWithFormulas } from "../modules/classes/ServerInfoWithFormulas";
 
@@ -7,14 +8,16 @@ export async function main(ns: NS) {
   // ns.disableLog("ALL")
   // ns.enableLog("asleep")
   if (!target) {
-    ns.tprint("Argument [0] \"target\" required");
+    ns.tprint('Argument [0] "target" required');
     return;
   }
 
   const scriptDelay = 50;
 
-  let serverInfo: ServerInfoWithFormulas = ServerInfoWithFormulas.getServerInfoWithFormulas(ns, target);
-  let cloudServersInfoList: Array<CloudServerInfo> = CloudServerInfo.getCloudServersInfoRaw(ns);
+  let serverInfo: ServerInfoWithFormulas =
+    ServerInfoWithFormulas.getServerInfoWithFormulas(ns, target);
+  let cloudServersInfoList: Array<CloudServerInfo> =
+    CloudServerInfo.getCloudServersInfoRaw(ns);
 
   // Kill prevous versions of handler
   killSimpleVersion();
@@ -23,12 +26,11 @@ export async function main(ns: NS) {
   // Kill all runing scripts on cloud servers. Requested after reboot.
   CloudServerInfo.killAllWGHByTargetName(cloudServersInfoList, target);
 
-  // Needed because on low money PrepareServer() can calculate wrong grow count. 
+  // Needed because on low money PrepareServer() can calculate wrong grow count.
   do {
     await PrepareServer();
     serverInfo.updateServer();
-  }
-  while (!serverInfo.serverIsPrepared);
+  } while (!serverInfo.serverIsPrepared);
 
   let cycleFlag: boolean = true;
   do {
@@ -40,22 +42,22 @@ export async function main(ns: NS) {
 
     const weakenTime: number = serverInfo.weakenTime;
     const hackingTime: number = serverInfo.hackTime;
-    const hwgCyclesCount: number = Math.floor(hackingTime * 0.95 / (scriptDelay * 4));
+    const hwgCyclesCount: number = Math.floor(
+      (hackingTime * 0.95) / (scriptDelay * 4),
+    );
     const { hacks, hackWeakens, grows, growWeakens } = serverInfo.getWGHCycle();
 
     for (let i = 0; i < hwgCyclesCount; i++) {
-
       hwgCycle(weakenTime, hacks, hackWeakens, grows, growWeakens);
       await ns.asleep(scriptDelay * 4);
     }
 
-    await ns.asleep(serverInfo.weakenTime + (scriptDelay * 8));
+    await ns.asleep(serverInfo.weakenTime + scriptDelay * 8);
   } while (cycleFlag);
 
   //TODO: rewrite to formulas
   async function PrepareServer() {
     let toDoWeakens: number = 0;
-    let toDoGrows: number = 0;
 
     // 1. Weaken to 0
     do {
@@ -66,7 +68,11 @@ export async function main(ns: NS) {
       }
       const weakenT: number = serverInfo.weakenTime;
 
-      const resultWeakens: number = CloudServerInfo.runWeaks(cloudServersInfoList, toDoWeakens, target);
+      const resultWeakens: number = CloudServerInfo.runWeaks(
+        cloudServersInfoList,
+        toDoWeakens,
+        target,
+      );
       toDoWeakens -= resultWeakens;
 
       await ns.asleep(weakenT + scriptDelay);
@@ -74,21 +80,22 @@ export async function main(ns: NS) {
 
     // 2. Rise to max money
     await runGrowWeakGroup();
-
   }
 
-  async function hwgCycle(weakenTime: number, hacks: number, hackWeakens: number, grows: number, growWeakens: number) {
-
+  async function hwgCycle(
+    weakenTime: number,
+    hacks: number,
+    hackWeakens: number,
+    grows: number,
+    growWeakens: number,
+  ) {
     runHacks(weakenTime, hacks);
 
-    ns.asleep(scriptDelay)
-      .then(() => runWeakens(weakenTime, hackWeakens));
+    ns.asleep(scriptDelay).then(() => runWeakens(weakenTime, hackWeakens));
 
-    ns.asleep(scriptDelay * 2)
-      .then(() => runGrows(weakenTime, grows));
+    ns.asleep(scriptDelay * 2).then(() => runGrows(weakenTime, grows));
 
-    ns.asleep(scriptDelay * 3)
-      .then(() => runWeakens(weakenTime, growWeakens));
+    ns.asleep(scriptDelay * 3).then(() => runWeakens(weakenTime, growWeakens));
   }
 
   async function runWeakens(wT: number, threads: number) {
@@ -147,7 +154,6 @@ export async function main(ns: NS) {
   }
 
   async function runGrowWeakGroup() {
-
     let toDoWeakens: number = 0;
     let toDoGrows: number = 0;
 
@@ -178,21 +184,29 @@ export async function main(ns: NS) {
         growT = newGrowT;
       } while (sleepFlag);
 
-      const resultGrows: number = CloudServerInfo.runGrows(cloudServersInfoList, toDoGrows, target);
+      const resultGrows: number = CloudServerInfo.runGrows(
+        cloudServersInfoList,
+        toDoGrows,
+        target,
+      );
       toDoGrows -= resultGrows;
       await ns.asleep(growT + scriptDelay);
     } while (toDoGrows > 0);
   }
 
-  function updateCloudServersInfo() {
-    cloudServersInfoList = CloudServerInfo.getCloudServersInfoRaw(ns);
-  }
-
   function killSimpleVersion() {
-    ns.kill("remoteHandlers/serverHandlerSimple.ts", "home", target);
+    ns.kill(
+      PathBuilder.remoteHandlers + "serverHandlerSimple.ts",
+      "home",
+      target,
+    );
   }
 
   function killSimpleVersionWithFormulas() {
-    ns.kill("remoteHandlers/serverHandlerSimpleWithFormulas.ts", "home", target);
+    ns.kill(
+      PathBuilder.remoteHandlers + "serverHandlerSimpleWithFormulas.ts",
+      "home",
+      target,
+    );
   }
 }

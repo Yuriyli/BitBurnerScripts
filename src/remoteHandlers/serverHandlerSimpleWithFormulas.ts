@@ -1,4 +1,5 @@
 import { CloudServerInfo } from "../modules/classes/CloudServerInfo";
+import { PathBuilder } from "../modules/classes/PathBuilder";
 import { ServerInfo } from "../modules/classes/ServerInfo";
 import { ServerInfoWithFormulas } from "../modules/classes/ServerInfoWithFormulas";
 
@@ -6,26 +7,27 @@ export async function main(ns: NS) {
   const target = ns.args[0] as string;
 
   if (!target) {
-    ns.tprint("Argument [0] \"target\" required");
+    ns.tprint('Argument [0] "target" required');
     return;
   }
 
   const scriptDelay = 50;
 
-  let serverInfo: ServerInfoWithFormulas = ServerInfoWithFormulas.getServerInfoWithFormulas(ns, target);
-  let cloudServersInfoList: Array<CloudServerInfo> = CloudServerInfo.getCloudServersInfoRaw(ns);
+  let serverInfo: ServerInfoWithFormulas =
+    ServerInfoWithFormulas.getServerInfoWithFormulas(ns, target);
+  let cloudServersInfoList: Array<CloudServerInfo> =
+    CloudServerInfo.getCloudServersInfoRaw(ns);
 
   // Kill version without formulas if exists on home server
   killSimpleVersion();
   // Kill all runing scripts on cloud servers. Requested after reboot.
   CloudServerInfo.killAllWGHByTargetName(cloudServersInfoList, target);
 
-  // Needed because on low money PrepareServer() can calculate wrong grow count. 
+  // Needed because on low money PrepareServer() can calculate wrong grow count.
   do {
     await PrepareServer();
     serverInfo.updateServer();
-  }
-  while (!serverInfo.serverIsPrepared);
+  } while (!serverInfo.serverIsPrepared);
 
   let cycleFlag: boolean = true;
   do {
@@ -34,7 +36,6 @@ export async function main(ns: NS) {
 
   async function PrepareServer() {
     let toDoWeakens: number = 0;
-    let toDoGrows: number = 0;
 
     // 1. Weaken to 0
     do {
@@ -45,7 +46,11 @@ export async function main(ns: NS) {
       }
       const weakenT: number = serverInfo.weakenTime;
 
-      const resultWeakens: number = CloudServerInfo.runWeaks(cloudServersInfoList, toDoWeakens, target);
+      const resultWeakens: number = CloudServerInfo.runWeaks(
+        cloudServersInfoList,
+        toDoWeakens,
+        target,
+      );
       toDoWeakens -= resultWeakens;
 
       await ns.sleep(weakenT + scriptDelay);
@@ -53,7 +58,6 @@ export async function main(ns: NS) {
 
     // 2. Rise to max money
     await runGrowWeakGroup();
-
   }
 
   async function hwgCycle() {
@@ -62,16 +66,13 @@ export async function main(ns: NS) {
 
     runHacks(weakenTime, hacks);
 
-    ns.asleep(scriptDelay)
-      .then(() => runWeakens(weakenTime, hackWeakens));
+    ns.asleep(scriptDelay).then(() => runWeakens(weakenTime, hackWeakens));
 
-    ns.asleep(scriptDelay * 2)
-      .then(() => runGrows(weakenTime, grows));
+    ns.asleep(scriptDelay * 2).then(() => runGrows(weakenTime, grows));
 
-    ns.asleep(scriptDelay * 3)
-      .then(() => runWeakens(weakenTime, growWeakens));
+    ns.asleep(scriptDelay * 3).then(() => runWeakens(weakenTime, growWeakens));
 
-    await ns.asleep(weakenTime + (scriptDelay * 4));
+    await ns.asleep(weakenTime + scriptDelay * 4);
   }
 
   async function runWeakens(wT: number, threads: number) {
@@ -130,7 +131,6 @@ export async function main(ns: NS) {
   }
 
   async function runGrowWeakGroup() {
-
     let toDoWeakens: number = 0;
     let toDoGrows: number = 0;
 
@@ -161,18 +161,21 @@ export async function main(ns: NS) {
         growT = newGrowT;
       } while (sleepFlag);
 
-      const resultGrows: number = CloudServerInfo.runGrows(cloudServersInfoList, toDoGrows, target);
+      const resultGrows: number = CloudServerInfo.runGrows(
+        cloudServersInfoList,
+        toDoGrows,
+        target,
+      );
       toDoGrows -= resultGrows;
       await ns.sleep(growT + scriptDelay);
     } while (toDoGrows > 0);
   }
 
-  function updateCloudServersInfo() {
-    cloudServersInfoList = CloudServerInfo.getCloudServersInfoRaw(ns);
-  }
-
   function killSimpleVersion() {
-    ns.kill("remoteHandlers/serverHandlerSimple.ts", "home", target);
+    ns.kill(
+      PathBuilder.remoteHandlers + "serverHandlerSimple.ts",
+      "home",
+      target,
+    );
   }
-
 }

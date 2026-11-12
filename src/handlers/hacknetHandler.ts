@@ -7,12 +7,16 @@ export async function main(ns: NS) {
 
   let mainCycleFlag: boolean = true;
   while (mainCycleFlag) {
-
     let innerCycleFlag: boolean = true;
     while (innerCycleFlag) {
-      const node: HacknetNodeUpgrade = HacknetNodeInfo.getCheapestUpgrade(ns);
-      
-      const result: boolean = node.upgrade();
+      const node: HacknetNodeUpgrade | undefined =
+        HacknetNodeInfo.getCheapestUpgrade(ns);
+
+      let result: boolean = false;
+      if (node) {
+        result = node.upgrade();
+      }
+
       if (result) {
         await ns.sleep(delay);
       } else {
@@ -22,5 +26,4 @@ export async function main(ns: NS) {
 
     await ns.sleep(pauseTime);
   }
-
 }

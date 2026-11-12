@@ -1,3 +1,4 @@
+import { PathBuilder } from "./modules/classes/PathBuilder";
 import { ServerInfo } from "./modules/classes/ServerInfo";
 import { getAllRootedTargetForHackingServerNames } from "./modules/server";
 
@@ -10,29 +11,56 @@ export async function main(ns: NS) {
   const servers: Array<string> = getAllRootedTargetForHackingServerNames(ns);
 
   for (let i = 0; i < servers.length; i++) {
-    const server: string = servers[i];
-
-    ns.scriptKill("remoteHandlers/serverHandlerPrimitive.ts", "home");
-    ns.scriptKill("remoteHandlers/serverHandlerSimpleHome.ts", "home");
-    ns.scriptKill("remoteHandlers/serverHandlerSimple.ts", "home");
-    ns.scriptKill("remoteHandlers/serverHandlerShotgun.ts", "home");
-
+    ns.scriptKill(
+      PathBuilder.remoteHandlers + "serverHandlerPrimitive.ts",
+      "home",
+    );
+    ns.scriptKill(
+      PathBuilder.remoteHandlers + "serverHandlerSimpleHome.ts",
+      "home",
+    );
+    ns.scriptKill(
+      PathBuilder.remoteHandlers + "serverHandlerSimple.ts",
+      "home",
+    );
+    ns.scriptKill(
+      PathBuilder.remoteHandlers + "serverHandlerShotgun.ts",
+      "home",
+    );
   }
 
   if (serverNumber <= 0 || serverNumber > servers.length) {
-    serverNumber = servers.length
+    serverNumber = servers.length;
   }
 
-  const serversInfo: Array<ServerInfo> = ServerInfo
-    .getServersInfo(ns, getAllRootedTargetForHackingServerNames(ns));
+  const serversInfo: Array<ServerInfo> = ServerInfo.getServersInfo(
+    ns,
+    getAllRootedTargetForHackingServerNames(ns),
+  );
   //sort by diff
-  serversInfo.sort((a, b) => (a.server?.baseDifficulty ?? 0) - (b.server?.baseDifficulty ?? 0));
+  serversInfo.sort(
+    (a, b) => (a.server?.baseDifficulty ?? 0) - (b.server?.baseDifficulty ?? 0),
+  );
 
   for (let i = 0; i < serverNumber; i++) {
-    const server: string = serversInfo[i].name;
+    const server: string | undefined = serversInfo[i]?.name;
+    if (!server) {
+      continue;
+    }
 
-    if (!ns.isRunning("remoteHandlers/serverHandlerSimpleWithFormulas.ts", "home", server)) {
-      ns.exec("remoteHandlers/serverHandlerSimpleWithFormulas.ts", "home", 1, server);
+    if (
+      !ns.isRunning(
+        PathBuilder.remoteHandlers + "serverHandlerSimpleWithFormulas.ts",
+        "home",
+        server,
+      )
+    ) {
+      ns.exec(
+        PathBuilder.remoteHandlers + "serverHandlerSimpleWithFormulas.ts",
+        "home",
+        1,
+        server,
+      );
     }
   }
 }
