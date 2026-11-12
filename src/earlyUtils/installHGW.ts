@@ -1,4 +1,4 @@
-import { PathBuilder } from "./modules/classes/PathBuilder";
+import { PathBuilder } from "../modules/classes/PathBuilder";
 
 export async function main(ns: NS) {
   const list: Array<string> = [

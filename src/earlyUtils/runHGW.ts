@@ -1,5 +1,5 @@
-import { CloudServerInfo } from "./modules/classes/CloudServerInfo";
-import { ServerInfo } from "./modules/classes/ServerInfo";
+import { CloudServerInfo } from "../modules/classes/CloudServerInfo";
+import { ServerInfo } from "../modules/classes/ServerInfo";
 
 export async function main(ns: NS) {
   const target = ns.args[0] as string;

@@ -1,6 +1,6 @@
-import { ServerInfo } from "./modules/classes/ServerInfo";
-import { getAllRootedTargetForHackingServerNames } from "./modules/server";
-import { CloudServerInfo } from "./modules/classes/CloudServerInfo";
+import { ServerInfo } from "../modules/classes/ServerInfo";
+import { getAllRootedTargetForHackingServerNames } from "../modules/server";
+import { CloudServerInfo } from "../modules/classes/CloudServerInfo";
 
 export async function main(ns: NS) {
   let scriptDelay = 1000;
